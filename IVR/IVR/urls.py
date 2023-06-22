@@ -15,7 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from CU17.controller import GestorAdmRtaOperador
+#from CU17.views import PantallaRtaOperador
+
+gestor = GestorAdmRtaOperador()
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("mostrar/datos", gestor.nuevaRtaOperador),
+#   path("tomar/ingresos/datos", PantallaRtaOperador.tomarIngresosDatosValidacion)
 ]

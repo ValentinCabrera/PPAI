@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure--zb6#wpg2pwdc8*@w&9c(-pyw(t&b$!92j9m3qcgj0y6ge!uj$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    "CU17",
 ]
 
 MIDDLEWARE = [
@@ -75,11 +77,12 @@ WSGI_APPLICATION = "IVR.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "ppai",
+        "HOST": "localhost",
+        "USER": "valentincabrera",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
