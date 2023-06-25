@@ -19,28 +19,39 @@ def create_defaults():
                             Llamada,
                             SubOpcionLlamada,
                             OpcionLlamada,
-                            CategoriaLlamada)
+                            CategoriaLlamada,
+                            Validacion, 
+                            CambioEstado, 
+                            Estado)
+    
+    from datetime import datetime
 
-    info = InformacionCliente(id=0)
+    sub_opcion = SubOpcionLlamada(id=0, nombre="Subopcion 1")
+    opcion = OpcionLlamada(id=0, nombre="Opcion 1", seleccionada=sub_opcion)
+    categoria = CategoriaLlamada(nombre="Categoria 1", opcionSeleccionada=opcion)
+    validacion = Validacion(id=0, nombre="¿Cual es el nombre de tu perro?", sub_opcion=sub_opcion)
+    info = InformacionCliente(id=0, validacion=validacion, datoAValidar="Berta")
     cliente = Cliente(id=0, nombre_completo="Valentin Cabrera", informacion_cliente=info)
     llamada = Llamada(id=0, cliente=cliente)
 
-    subopcion = SubOpcionLlamada(id=1, nombre="Subopcion 1")
-    opcion = OpcionLlamada(id=0, nombre="Opcion 1", seleccionada=subopcion)
-    categoria = CategoriaLlamada(nombre="Categoria 1", opcionSeleccionada=opcion)
-
+    sub_opcion.save()
+    opcion.save()
+    categoria.save()
+    validacion.save()
     info.save()
     cliente.save()
     llamada.save()
-    subopcion.save()
-    opcion.save()
-    categoria.save()
+
+    iniciada = Estado(name="EnCurso")
+    cambio_estado = CambioEstado(llamada=llamada, estado=iniciada, fecha_hora=str(datetime.now()))
+    cambio_estado.save()
+
 
 def create_states():
     start_apps()
     from CU17.models import Estado
 
-    names = ["enCurso", "finalizada"]
+    names = ["Iniciada", "Cancelada", "EnCurso", "Finalizada"]
 
     for name in names:
         state = Estado(name)

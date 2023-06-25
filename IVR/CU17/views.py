@@ -1,25 +1,28 @@
 from django.shortcuts import render
 
 class PantallaRtaOperador():
-    def mostrarDatosLlamadaYValidacionRequerida(self, gestor, request, datos):
+    def __init__(self, gestor):
         self.gestor = gestor
+
+    def mostrarDatosLlamadaYValidacionRequerida(self, request, datos):
         return render(request, "main.html" , {"datos":datos})
 
     def tomarIngresosDatosValidacion(self, request):
-        datos_validacion = request.data.get("datos_validacion")
-        return self.gestor.tomarDatosValidacion(datos_validacion, request)
 
-    def permitirIngresoRtaOperador(request):
+        datos = "Berta"
+        return self.gestor.tomarDatosValidacion(datos, request) # Llamada al metodo 21
+
+    def permitirIngresoRtaOperador(self, request):
         return render(request, "rta_operador.html")
 
     def tomarIngresoRta(self, request):
-        return self.gestor.tomarRtaOperador(request)
+        return self.gestor.tomarRtaOperador(request) # Llamada al metodo 28
 
-    def solicitarConfirmacion(request):
+    def solicitarConfirmacion(self, request):
         return render(request, "solicitar_confirmacion.html")
 
     def tomarConfirmacion(self, request):
-            self.gestor.confirmar()
+            return self.gestor.confirmar(request) # Llamada al metodo 31
 
-    def informarAccionRegistrada(request):
-        return render(request, "informacion_registrada")
+    def informarAccionRegistrada(self, request):
+        return render(request, "informacion_registrada.html")

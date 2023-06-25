@@ -9,6 +9,16 @@
     <h2>Datos:</h2>
     <p>{{datos.nombre_completo}}</p>
     <p>{{datos.categoria}}</p>
-    <p>{{validaciones}}</p>
+    <p>{{datos.descripcion_completa.opcion}}</p>
+    <p>{{datos.descripcion_completa.sub_opcion}}</p>
+
+    {% for value in datos.validaciones %}
+    <p>{{value}}</p>
+    <input />
+    {% endfor %}
+
+    <a href="http://localhost:8000/tomar/ingresos/datos" />siguiente</a>
+
+    <a href="https://localhost/dsd">corto la llamada</a>
   </body>
 </html>
