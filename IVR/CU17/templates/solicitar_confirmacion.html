@@ -2,8 +2,104 @@
 <html>
   <head>
     <title>Página principal</title>
+    <script>
+      function confirmar() {
+        var data = "{{respuesta}}";
+
+        fetch("http://localhost:8000/confirmar", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        })
+          .then((response) => response.text())
+          .then((html) => {
+            const newDocument = document.implementation.createHTMLDocument();
+            newDocument.documentElement.innerHTML = html;
+
+            document.open();
+            document.write(newDocument.documentElement.innerHTML);
+            document.close();
+          });
+      }
+    </script>
+
+    <style>
+      .fx-col {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .fx-row {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .fx-sep {
+        justify-content: space-between;
+      }
+
+      .fx-center {
+        align-items: center;
+      }
+
+      .w300 {
+        width: 300px;
+      }
+
+      .b-fondo {
+        background-color: rgb(28, 66, 100);
+      }
+
+      .m30 {
+        margin-top: 30px;
+      }
+
+      .p30 {
+        padding: 30px;
+      }
+
+      .w100p {
+        width: 100%;
+      }
+
+      .b-frente {
+        background-color: rgb(220, 83, 55);
+      }
+
+      .button {
+        border: none;
+        background-color: rgb(240, 140, 120);
+        font-size: 15px;
+      }
+
+      .button:hover {
+        background-color: rgb(180, 80, 60);
+        color: white;
+      }
+
+      .b-white {
+        background-color: white;
+      }
+
+      .p10 {
+        padding: 10px;
+      }
+
+      .border-r {
+        border-radius: 10px;
+        box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+      }
+    </style>
   </head>
-  <body>
-    <h2>Desea confirmar</h2>
-    <a href="http://localhost:8000/confirmar" />confirmar</a>  </body>
+  <body class="fx-col fx-center b-fondo">
+    <div class="fx-col w300 b-frente m30 p30">
+      <h2>Desea confirmar</h2>
+      <p class="b-white p10">{{respuesta}}</p>
+      <button onClick="confirmar()" class="m30 button border-r">
+        Confirmar
+      </button>
+    </div>
+  </body>
 </html>

@@ -29,17 +29,25 @@ def create_defaults():
     sub_opcion = SubOpcionLlamada(id=0, nombre="Subopcion 1")
     opcion = OpcionLlamada(id=0, nombre="Opcion 1", seleccionada=sub_opcion)
     categoria = CategoriaLlamada(nombre="Categoria 1", opcionSeleccionada=opcion)
+    cliente = Cliente(id=0, nombre_completo="Valentin Cabrera")
+
     validacion = Validacion(id=0, nombre="¿Cual es el nombre de tu perro?", sub_opcion=sub_opcion)
-    info = InformacionCliente(id=0, validacion=validacion, datoAValidar="Berta")
-    cliente = Cliente(id=0, nombre_completo="Valentin Cabrera", informacion_cliente=info)
+    info = InformacionCliente(id=0, validacion=validacion, datoAValidar="Berta", cliente=cliente)
+
+    validacion2 = Validacion(id=1, nombre="¿En que universidad estudias?", sub_opcion=sub_opcion)
+    info2 = InformacionCliente(id=1, validacion=validacion2, datoAValidar="UTN", cliente=cliente)
+
     llamada = Llamada(id=0, cliente=cliente)
 
     sub_opcion.save()
     opcion.save()
     categoria.save()
     validacion.save()
-    info.save()
+    validacion2.save()
     cliente.save()
+    info.save()
+    validacion2.save()
+    info2.save()
     llamada.save()
 
     iniciada = Estado(name="EnCurso")

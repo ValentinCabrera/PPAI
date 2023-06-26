@@ -2,8 +2,40 @@
 <html>
   <head>
     <title>Home</title>
+    <style>
+      .b-fondo {
+        background-color: rgb(28, 66, 100);
+      }
+      .fx-center {
+        align-items: center;
+      }
+      .fx-col {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .b-frente {
+        background-color: rgb(220, 83, 55);
+      }
+
+      .fx-sep {
+        justify-content: center;
+      }
+
+      .sep {
+        margin: 50px;
+        padding: 30px;
+      }
+
+      .f-20 {
+        font-size: 20px;
+      }
+    </style>
   </head>
-  <body>
-    <h1>Esperando llamada entrante</h1>
+  <body class="fx-col fx-center b-fondo fx-sep">
+    <div class="b-frente fx-col fx-center sep">
+      <h1>El operador deja de asistir a la llamada</h1>
+      <h4 class="f-20">Motivo: {{motivo}}</h4>
+    </div>
   </body>
 </html>

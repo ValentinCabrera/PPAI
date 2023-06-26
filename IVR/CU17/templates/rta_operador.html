@@ -1,11 +1,115 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Página principal</title>
+    <title>respuesta operador</title>
+    <script>
+      function postRespuesta() {
+        var data = document.getElementById("respuesta").value;
+
+        fetch("http://localhost:8000/tomar/ingreso/rta", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        })
+          .then((response) => response.text())
+          .then((html) => {
+            const newDocument = document.implementation.createHTMLDocument();
+            newDocument.documentElement.innerHTML = html;
+
+            document.open();
+            document.write(newDocument.documentElement.innerHTML);
+            document.close();
+          });
+      }
+    </script>
+
+    <style>
+      .fx-col {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .fx-row {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .fx-sep {
+        justify-content: space-between;
+      }
+
+      .fx-center {
+        align-items: center;
+      }
+
+      .w300 {
+        width: 300px;
+      }
+
+      .b-fondo {
+        background-color: rgb(28, 66, 100);
+      }
+
+      .m30 {
+        margin-top: 30px;
+      }
+
+      .p30 {
+        padding: 30px;
+      }
+
+      .w100p {
+        width: 100%;
+      }
+
+      .h100 {
+        height: 100px;
+      }
+
+      .b-frente {
+        background-color: rgb(220, 83, 55);
+      }
+
+      .button {
+        border: none;
+        background-color: rgb(240, 140, 120);
+        font-size: 15px;
+      }
+
+      .button:hover {
+        background-color: rgb(180, 80, 60);
+        color: white;
+      }
+
+      textarea {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #6c63ff;
+        box-shadow: 0 0 5px #6c63ff;
+      }
+
+      .border-r {
+        border-radius: 10px;
+        box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+      }
+    </style>
   </head>
-  <body>
-    <h2>Respuesta del operador</h2>
-    <textarea rows="30" cols="30"></textarea>
-    <a href="http://localhost:8000/tomar/ingreso/rta" />siguiente</a>  
+  <body class="fx-col fx-center b-fondo">
+    <div class="fx-col w300 b-frente m30 p30">
+      <h2>Respuesta del operador</h2>
+      <textarea rows="6" cols="30" id="respuesta"></textarea>
+      <button onClick="postRespuesta()" class="button m30 border-r">
+        Registrar respuesta
+      </button>
+    </div>
   </body>
 </html>

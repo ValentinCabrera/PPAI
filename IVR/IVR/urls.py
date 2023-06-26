@@ -21,13 +21,16 @@ from CU17.views import PantallaRtaOperador
 
 from CU17.cu1 import llamada, categoria, opcion, sub_opcion
 
+#sub_opcion = None
 gestor = GestorAdmRtaOperador(llamada, categoria, opcion, sub_opcion)
 pantalla = gestor.pantalla
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("mostrar/datos", gestor.nuevaRtaOperador), # Llamada al metodo 1
-    path("tomar/ingresos/datos", pantalla.tomarIngresosDatosValidacion), # Llamada al metodo 20
+    path("tomar/ingreso/datos", pantalla.tomarIngresosDatosValidacion), # Llamada al metodo 20
     path("tomar/ingreso/rta", pantalla.tomarIngresoRta), # Llamada al metodo 27
-    path("confirmar", pantalla.tomarConfirmacion) # Llamada al metodo 30
+    path("confirmar", pantalla.tomarConfirmacion),  # Llamada al metodo 30
+    path("cancelar", pantalla.cancelarLlamada),
+    path("es/cancelada", pantalla.estaCancelada),
 ]
