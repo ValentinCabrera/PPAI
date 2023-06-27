@@ -209,7 +209,6 @@ class GestorAdmRtaOperador():
         """
         Realiza las acciones necesarias al finalizar el caso de uso.
         """
-        pass
 
     # Flujo Alternativo 1
 

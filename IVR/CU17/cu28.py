@@ -2,7 +2,7 @@ class CU28:
     def registrarAccionRequerida(self, respuesta):
         try:
             self.respuesta = respuesta
-            return True
+            return False
         
         except:
             return False

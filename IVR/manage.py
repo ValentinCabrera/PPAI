@@ -50,8 +50,8 @@ def create_defaults():
     info2.save()
     llamada.save()
 
-    iniciada = Estado(name="EnCurso")
-    cambio_estado = CambioEstado(llamada=llamada, estado=iniciada, fecha_hora=str(datetime.now()))
+    iniciada = Estado(nombre="EnCurso")
+    cambio_estado = CambioEstado(llamada=llamada, estado=iniciada, fechaHoraInicio=str(datetime.now()))
     cambio_estado.save()
 
 

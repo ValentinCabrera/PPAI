@@ -153,7 +153,7 @@ class InformacionCliente(models.Model):
 
 class Llamada(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
-    fechaInicio = models.DateTimeField(auto_now=True)
+    fechaHoraInicio = models.DateTimeField(auto_now=True)
     duracion = models.DecimalField(decimal_places=1, max_digits=4, blank=True, null=True)
 
     def derivarAOperador(self, estado, fecha_hora):
@@ -164,7 +164,7 @@ class Llamada(models.Model):
             estado (Estado): Estado de la llamada.
             fecha_hora (datetime): Fecha y hora de la derivación.
         """
-        enCurso = CambioEstado(llamada=self, estado=estado, fecha_hora=str(fecha_hora))
+        enCurso = CambioEstado(llamada=self, estado=estado, fechaHoraInicio=str(fecha_hora))
         enCurso.save()
 
     def getNombreClienteLlamada(self):
@@ -185,7 +185,7 @@ class Llamada(models.Model):
             estado (Estado): Estado de la llamada al finalizar.
             fecha_hora (datetime): Fecha y hora de finalización.
         """
-        c = CambioEstado(llamada=self, estado=estado, fecha_hora=str(fecha_hora))
+        c = CambioEstado(llamada=self, estado=estado, fechaHoraInicio=str(fecha_hora))
         c.save()
         self.calcularDuracion(fecha_hora)
 
@@ -196,7 +196,7 @@ class Llamada(models.Model):
         Args:
             fin (datetime): Fecha y hora de finalización de la llamada.
         """
-        diferencia = fin - self.fechaInicio
+        diferencia = fin - self.fechaHoraInicio
         tiempo = diferencia.total_seconds() / 60
         self.duracion = round(tiempo, 1)
         self.save()
@@ -209,7 +209,7 @@ class Llamada(models.Model):
             estado (Estado): Estado de la llamada al cancelar.
             fecha_hora (datetime): Fecha y hora de cancelación.
         """
-        c = CambioEstado(llamada=self, estado=estado, fecha_hora=str(fecha_hora))
+        c = CambioEstado(llamada=self, estado=estado, fechaHoraInicio=str(fecha_hora))
         c.save()
 
     def fuisteCancelada(self, estado):
@@ -222,13 +222,13 @@ class Llamada(models.Model):
         Returns:
             fue_cancelada (bool): Indica si la llamada fue cancelada o no.
         """
-        if self.cambios_estado.last().estado.name == "Cancelada":
+        if self.cambios_estado.last().estado.nombre == "Cancelada":
             return True
         
         return False
 
 class Estado(models.Model):
-    name = models.CharField(max_length=30, primary_key=True)
+    nombre = models.CharField(max_length=30, primary_key=True)
    
     def esEnCurso(self):
         """
@@ -237,7 +237,7 @@ class Estado(models.Model):
         Returns:
             es_en_curso (bool): Indica si el estado es "EnCurso" o no.
         """
-        if self.name == "EnCurso":
+        if self.nombre == "EnCurso":
             return True
         
         return False
@@ -249,7 +249,7 @@ class Estado(models.Model):
         Returns:
             es_finalizada (bool): Indica si el estado es "Finalizada" o no.
         """
-        if self.name == "Finalizada":
+        if self.nombre == "Finalizada":
             return True
         
         return False
@@ -261,7 +261,7 @@ class Estado(models.Model):
         Returns:
             es_cancelada (bool): Indica si el estado es "Cancelada" o no.
         """
-        if self.name == "Cancelada":
+        if self.nombre == "Cancelada":
             return True
         
         return False
@@ -269,4 +269,4 @@ class Estado(models.Model):
 class CambioEstado(models.Model):
     llamada = models.ForeignKey(Llamada, on_delete=models.RESTRICT, related_name="cambios_estado")
     estado = models.ForeignKey(Estado, on_delete=models.RESTRICT)
-    fecha_hora = models.DateTimeField()
+    fechaHoraInicio = models.DateTimeField()
