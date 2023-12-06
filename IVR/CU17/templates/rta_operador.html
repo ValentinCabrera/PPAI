@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>respuesta operador</title>
+    <title>Respuesta Operador</title>
     <script>
       function postRespuesta() {
         var data = document.getElementById("respuesta").value;
@@ -26,69 +26,54 @@
     </script>
 
     <style>
-      .fx-col {
+      body {
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+        justify-content: center;
+        align-items: center;
+        background-color: #082338; /* Fondo azul oscuro */
+        font-family: 'Inter', sans-serif;
+      }
+
+      .form-container {
         display: flex;
         flex-direction: column;
-      }
-
-      .fx-row {
-        display: flex;
-        flex-direction: row;
-      }
-
-      .fx-sep {
-        justify-content: space-between;
-      }
-
-      .fx-center {
-        align-items: center;
-      }
-
-      .w300 {
         width: 300px;
-      }
-
-      .b-fondo {
-        background-color: rgb(28, 66, 100);
-      }
-
-      .m30 {
         margin-top: 30px;
-      }
-
-      .p30 {
         padding: 30px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+        background-color: lightgray; /* Frente naranja */
       }
 
-      .w100p {
-        width: 100%;
+      .form-container h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: black; /* Texto blanco */
       }
 
-      .h100 {
-        height: 100px;
-      }
-
-      .b-frente {
-        background-color: rgb(220, 83, 55);
-      }
-
-      .button {
-        border: none;
-        background-color: rgb(240, 140, 120);
-        font-size: 15px;
-      }
-
-      .button:hover {
-        background-color: rgb(180, 80, 60);
-        color: white;
-      }
-
-      textarea {
+      .form-container textarea {
         padding: 10px;
         font-size: 16px;
         border: 1px solid #ccc;
         border-radius: 4px;
         resize: vertical;
+        margin-bottom: 15px;
+      }
+
+      .form-container button {
+        border: none;
+        background-color: #082338; /* Botón naranja claro */
+        font-size: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        color: white; /* Texto blanco */
+      }
+
+      .form-container button:hover {
+        background-color: rgb(22, 172, 32); /* Hover: Botón naranja oscuro */
+        color: white; /* Texto blanco */
       }
 
       textarea:focus {
@@ -103,12 +88,12 @@
       }
     </style>
   </head>
-  <body class="fx-col fx-center b-fondo">
-    <div class="fx-col w300 b-frente m30 p30">
-      <h2>Respuesta del operador</h2>
+  <body>
+    <div class="form-container">
+      <h2>Respuesta del Operador</h2>
       <textarea rows="6" cols="30" id="respuesta"></textarea>
-      <button onClick="postRespuesta()" class="button m30 border-r">
-        Registrar respuesta
+      <button onClick="postRespuesta()" class="button border-r">
+        Registrar Respuesta
       </button>
     </div>
   </body>

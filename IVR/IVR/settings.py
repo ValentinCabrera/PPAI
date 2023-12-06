@@ -80,7 +80,8 @@ WSGI_APPLICATION = "IVR.wsgi.application"
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "ppai",
         "HOST": "localhost",
-        "USER": "valentincabrera",
+        "USER": "postgres",
+        'PASSWORD': '43928343',
     }
 }"""
 

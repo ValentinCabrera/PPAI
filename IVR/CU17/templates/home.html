@@ -1,10 +1,29 @@
 <!DOCTYPE html>
 <html>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Inter:wght@400&display=swap" rel="stylesheet">
   <head>
     <title>Home</title>
     <style>
+      body {
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+        justify-content: center;
+        align-items: center;
+      }
+      .font {
+        font-family: 'Inter', sans-serif;
+      }
       .b-fondo {
-        background-color: rgb(28, 66, 100);
+        background-color:#082338;
+      }
+      .b-radius {
+        border-radius: 10px;
+      }
+      .b-frente {
+        background-color: lightgray;
       }
       .fx-center {
         align-items: center;
@@ -14,9 +33,7 @@
         flex-direction: column;
       }
 
-      .b-frente {
-        background-color: rgb(220, 83, 55);
-      }
+      
 
       .fx-sep {
         justify-content: center;
@@ -33,7 +50,7 @@
     </style>
   </head>
   <body class="fx-col fx-center b-fondo fx-sep">
-    <div class="b-frente fx-col fx-center sep">
+    <div class="b-frente fx-col fx-center sep b-radius font">
       <h1>El operador deja de asistir a la llamada</h1>
       <h4 class="f-20">Motivo: {{motivo}}</h4>
     </div>

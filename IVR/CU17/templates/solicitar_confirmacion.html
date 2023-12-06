@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Inter:wght@400&display=swap" rel="stylesheet">
     <title>Página principal</title>
     <script>
       function confirmar() {
@@ -26,65 +29,53 @@
     </script>
 
     <style>
-      .fx-col {
+      body {
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+        justify-content: center;
+        align-items: center;
+        background-color: #082338; /* Fondo azul oscuro */
+        font-family: 'Inter', sans-serif;
+      }
+
+      .form-container {
         display: flex;
         flex-direction: column;
-      }
-
-      .fx-row {
-        display: flex;
-        flex-direction: row;
-      }
-
-      .fx-sep {
-        justify-content: space-between;
-      }
-
-      .fx-center {
-        align-items: center;
-      }
-
-      .w300 {
         width: 300px;
-      }
-
-      .b-fondo {
-        background-color: rgb(28, 66, 100);
-      }
-
-      .m30 {
         margin-top: 30px;
-      }
-
-      .p30 {
         padding: 30px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+        background-color: lightgray; /* Frente naranja */
       }
 
-      .w100p {
-        width: 100%;
+      .form-container h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: black; /* Texto blanco */
+        text-align: center; 
       }
 
-      .b-frente {
-        background-color: rgb(220, 83, 55);
-      }
-
-      .button {
-        border: none;
-        background-color: rgb(240, 140, 120);
-        font-size: 15px;
-      }
-
-      .button:hover {
-        background-color: rgb(180, 80, 60);
-        color: white;
-      }
-
-      .b-white {
-        background-color: white;
-      }
-
-      .p10 {
+      .form-container p {
+        background-color: white; /* Fondo blanco */
         padding: 10px;
+        border-radius: 10px;
+        margin: 10px 0;
+      }
+
+      .form-container button {
+        border: none;
+        background-color: #082338; /* Botón naranja claro */
+        font-size: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        color: white; /* Texto blanco */
+      }
+
+      .form-container button:hover {
+        background-color: rgb(22, 172, 32); /* Hover: Botón naranja oscuro */
+        color: white; /* Texto blanco */
       }
 
       .border-r {
@@ -93,11 +84,11 @@
       }
     </style>
   </head>
-  <body class="fx-col fx-center b-fondo">
-    <div class="fx-col w300 b-frente m30 p30">
-      <h2>Desea confirmar</h2>
+  <body>
+    <div class="form-container">
+      <h2>¿Desea confirmar?</h2>
       <p class="b-white p10">{{respuesta}}</p>
-      <button onClick="confirmar()" class="m30 button border-r">
+      <button onClick="confirmar()" class="button border-r">
         Confirmar
       </button>
     </div>
