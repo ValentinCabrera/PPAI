@@ -1,21 +1,56 @@
 from django.db import models
-class SubOpcionLlamada(models.Model):
+
+class Iterador():
+    def primero(self):
+        pass
+
+    def haTerminado(self):
+        pass
+
+    def actual(self):
+        pass
+
+    def siguiente(self):
+        pass
+class IteradorValidacion(Iterador):
+    i = 0
+
+    def __init__(self, elementos):
+        self.elementos = elementos
+    def primero(self):
+        self.i = 0
+
+    def haTerminado(self):
+        return self.i == len(self.elementos)
+
+    def actual(self):
+        return self.elementos[self.i]
+
+    def siguiente(self):
+        self.i += 1
+class IAgregado():
+    def crearIterador(self):
+        pass
+
+class SubOpcionLlamada(models.Model, IAgregado):
     nombre = models.CharField(max_length=30)
 
     def getValidaciones(self):
-        """
-        Obtiene las validaciones asociadas a la subopción de llamada.
+        iterador = self.crearIterador(self.validaciones.all())
+        iterador.primero()
 
-        Returns:
-            mensajes (list): Lista de mensajes de validación.
-        """
-        validaciones = self.validaciones.all()
         mensajes = []
-        
-        for i in validaciones:
-            mensajes.append(i.getMensajeValidacion())
+
+        if iterador.haTerminado() == False:
+            actual = iterador.actual()
+            mensajes.append(actual.getMensajeValidacion())
+            iterador.siguiente()
 
         return mensajes
+
+    def crearIterador(self, elementos):
+        iterador = IteradorValidacion(elementos)
+        return iterador
 
     def getNombre(self):
         """
