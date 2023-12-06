@@ -13,21 +13,26 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
 
 from CU17.controller import GestorAdmRtaOperador
-from CU17.views import PantallaRtaOperador
+from CU17.cu1 import *
+from functools import partial
 
-from CU17.cu1 import llamada, categoria, opcion, sub_opcion
+urlpatterns = []
 
-#sub_opcion = None
-gestor = GestorAdmRtaOperador(llamada, categoria, opcion, sub_opcion)
+gestor = GestorAdmRtaOperador()
 pantalla = gestor.pantalla
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("mostrar/datos", gestor.nuevaRtaOperador), # Llamada al metodo 1
+    path("mostrar/datos", partial(gestor.nuevaRtaOperador,
+                                  llamada=get_llamada(),
+                                  categoria=get_categoria(),
+                                  opcion=get_opcion(),
+                                  sub_opcion=get_subOpcion())), # Llamada al metodo 1
     path("tomar/ingreso/datos", pantalla.tomarIngresosDatosValidacion), # Llamada al metodo 20
     path("tomar/ingreso/rta", pantalla.tomarIngresoRta), # Llamada al metodo 27
     path("confirmar", pantalla.tomarConfirmacion),  # Llamada al metodo 30

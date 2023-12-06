@@ -1,5 +1,4 @@
 from django.db import models
-
 class SubOpcionLlamada(models.Model):
     nombre = models.CharField(max_length=30)
 
@@ -151,21 +150,103 @@ class InformacionCliente(models.Model):
         """
         return self.datoAValidar == informacion
 
+
+class Estado(models.Model):
+    def derivarAOperador(self, fechaHoraActual):
+        pass
+
+    def finalizarLlamada(self, fechaHoraActual):
+        pass
+
+    def cancelarLlamada(self, fechaHoraActual):
+        pass
+
+    def crearEstadoCancelada(self):
+        pass
+
+    def esCancelada(self):
+        pass
+
+
+class EnCurso(Estado):
+    class Meta:
+        proxy = True
+    def finalizarLlamada(self, fechaHoraActual):
+        finalizada = self.crearProximoEstado()
+        cambio = self.crearCambioEstado(fechaHoraActual, finalizada)
+
+        self.llamada.first().agregarCambioEstado(cambio)
+        self.llamada.first().setEstado(finalizada)
+
+    def cancelarLlamada(self, fechaHoraActual):
+        cancelada = self.crearEstadoCancelada()
+        cambio = self.crearCambioEstado(fechaHoraActual, cancelada)
+
+        self.llamada.first().agregarCambioEstado(cambio)
+        self.llamada.first().setEstado(cancelada)
+
+    def crearEstadoCancelada(self):
+        cancelada = Cancelada.objects.create()
+        return cancelada
+
+    def crearProximoEstado(self):
+        finalizada = Finalizada.objects.create()
+        return finalizada
+
+    def crearCambioEstado(self, fechaHoraActual, estado):
+        cambio = CambioEstado.objects.create(estado=estado, fechaHoraInicio=fechaHoraActual)
+        return cambio
+
+class Cancelada(Estado):
+    class Meta:
+        proxy = True
+    def esCancelada(self):
+        return True
+
+class Finalizada(Estado):
+    class Meta:
+        proxy = True
+
+class Iniciada(Estado):
+    class Meta:
+        proxy = True
+    def derivarAOperador(self, fechaHoraActual):
+        enCurso = self.crearProximoEstado()
+        cambio = self.crearCambioEstado(fechaHoraActual, enCurso)
+
+        self.llamada.first().agregarCambioEstado(cambio)
+        self.llamada.first().setEstado(enCurso)
+
+    def cancelarLlamada(self, fechaHoraActual):
+        cancelada = self.crearEstadoCancelada()
+        cambio = self.crearCambioEstado(fechaHoraActual, cancelada)
+
+        self.llamada.first().agregarCambioEstado(cambio)
+        self.llamada.first().setEstado(cancelada)
+
+    def crearEstadoCancelada(self):
+        cancelada = Cancelada.objects.create()
+        return cancelada
+
+    def crearProximoEstado(self):
+        enCurso = EnCurso.objects.create()
+        return enCurso
+
+    def crearCambioEstado(self, fechaHoraActual, estado):
+        cambio = CambioEstado.objects.create(estado=estado, fechaHoraInicio=fechaHoraActual)
+        return cambio
+
+    def __str__(self):
+        return "Iniciada"
+
 class Llamada(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
     fechaHoraInicio = models.DateTimeField(auto_now=True)
-    duracion = models.DecimalField(decimal_places=1, max_digits=4, blank=True, null=True)
+    duracion = models.DecimalField(decimal_places=1, max_digits=4, null=True)
+    estadoActual = models.ForeignKey(Estado, on_delete=models.RESTRICT, related_name="llamada" ,related_query_name="estado")
 
-    def derivarAOperador(self, estado, fecha_hora):
-        """
-        Deriva la llamada a un operador.
-
-        Args:
-            estado (Estado): Estado de la llamada.
-            fecha_hora (datetime): Fecha y hora de la derivación.
-        """
-        enCurso = CambioEstado(llamada=self, estado=estado, fechaHoraInicio=str(fecha_hora))
-        enCurso.save()
+    def derivarAOperador(self, fecha_hora):
+        self.estadoActual.derivarAOperador(fecha_hora)
 
     def getNombreClienteLlamada(self):
         """
@@ -177,17 +258,9 @@ class Llamada(models.Model):
         clienteDeLlamada = self.cliente
         return clienteDeLlamada, clienteDeLlamada.getNombre()
 
-    def finalizarLlamada(self, estado, fecha_hora):
-        """
-        Finaliza la llamada.
-
-        Args:
-            estado (Estado): Estado de la llamada al finalizar.
-            fecha_hora (datetime): Fecha y hora de finalización.
-        """
-        c = CambioEstado(llamada=self, estado=estado, fechaHoraInicio=str(fecha_hora))
-        c.save()
-        self.calcularDuracion(fecha_hora)
+    def finalizarLlamada(self, fechaHoraActual):
+        self.estadoActual.finalizarLlamada(fechaHoraActual)
+        self.calcularDuracion(fechaHoraActual)
 
     def calcularDuracion(self, fin):
         """
@@ -201,18 +274,10 @@ class Llamada(models.Model):
         self.duracion = round(tiempo, 1)
         self.save()
 
-    def cancelarLlamada(self, estado, fecha_hora):
-        """
-        Cancela la llamada.
+    def cancelarLlamada(self, fecha_hora):
+        self.estadoActual.cancelarLlamada(fecha_hora)
 
-        Args:
-            estado (Estado): Estado de la llamada al cancelar.
-            fecha_hora (datetime): Fecha y hora de cancelación.
-        """
-        c = CambioEstado(llamada=self, estado=estado, fechaHoraInicio=str(fecha_hora))
-        c.save()
-
-    def fuisteCancelada(self, estado):
+    def fuisteCancelada(self):
         """
         Verifica si la llamada fue cancelada.
 
@@ -222,51 +287,17 @@ class Llamada(models.Model):
         Returns:
             fue_cancelada (bool): Indica si la llamada fue cancelada o no.
         """
-        if self.cambios_estado.last().estado.nombre == "Cancelada":
-            return True
-        
-        return False
+        return self.estadoActual.esCancelada()
 
-class Estado(models.Model):
-    nombre = models.CharField(max_length=30, primary_key=True)
-   
-    def esEnCurso(self):
-        """
-        Verifica si el estado es "EnCurso".
+    def agregarCambioEstado(self, cambio):
+        cambio.llamada = self
+        cambio.save()
 
-        Returns:
-            es_en_curso (bool): Indica si el estado es "EnCurso" o no.
-        """
-        if self.nombre == "EnCurso":
-            return True
-        
-        return False
-
-    def esFinalizada(self):
-        """
-        Verifica si el estado es "Finalizada".
-
-        Returns:
-            es_finalizada (bool): Indica si el estado es "Finalizada" o no.
-        """
-        if self.nombre == "Finalizada":
-            return True
-        
-        return False
-    
-    def esCancelada(self):
-        """
-        Verifica si el estado es "Cancelada".
-
-        Returns:
-            es_cancelada (bool): Indica si el estado es "Cancelada" o no.
-        """
-        if self.nombre == "Cancelada":
-            return True
-        
-        return False
+    def setEstado(self, estado):
+        self.estadoActual = estado
+        self.save()
 
 class CambioEstado(models.Model):
-    llamada = models.ForeignKey(Llamada, on_delete=models.RESTRICT, related_name="cambios_estado")
+    llamada = models.ForeignKey(Llamada, on_delete=models.CASCADE, related_name="cambios_estado", null=True)
     estado = models.ForeignKey(Estado, on_delete=models.RESTRICT)
     fechaHoraInicio = models.DateTimeField()

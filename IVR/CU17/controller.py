@@ -8,7 +8,7 @@ class GestorAdmRtaOperador():
     enCurso = Estado
     datos = {}
 
-    def __init__(self, llamada, categoria, opcion, sub_opcion):
+    def __init__(self):
         """
         Inicializa el Gestor de Administración de Respuestas del Operador.
 
@@ -19,12 +19,8 @@ class GestorAdmRtaOperador():
             sub_opcion (str): Subopción seleccionada.
         """
         self.pantalla = PantallaRtaOperador(self)
-        self.identificada = llamada
-        self.catSeleccionada = categoria
-        self.opcionSeleccionada = opcion
-        self.seleccionada = sub_opcion
 
-    def nuevaRtaOperador(self, request): 
+    def nuevaRtaOperador(self, request, llamada, categoria, opcion, sub_opcion):
         """
         Procesa una nueva respuesta del operador.
 
@@ -34,9 +30,14 @@ class GestorAdmRtaOperador():
         Returns:
             HttpResponse: Respuesta HTTP.
         """
+        self.identificada = llamada
+        self.catSeleccionada = categoria
+        self.opcionSeleccionada = opcion
+        self.seleccionada = sub_opcion
+
         if self.seleccionada == None:
             return self.pantalla.ningunaSubopcion(request)
-        
+
         if self.llamadaEstaCancelada(request):
             return self.llamadaEstaCancelada(request)
 
@@ -49,9 +50,9 @@ class GestorAdmRtaOperador():
         """
         Registra la recepción de la llamada.
         """
-        self.buscarEstadoEnCurso() # Llamada al metodo 3
+
         fechaHoraActual = self.getFechaHoraActual() # Llamada al metodo 5
-        self.identificada.derivarAOperador(self.enCurso, fechaHoraActual) # Llamada al metodo 6
+        self.identificada.derivarAOperador(fechaHoraActual) # Llamada al metodo 6
 
     def getFechaHoraActual(self):
         """
@@ -61,17 +62,6 @@ class GestorAdmRtaOperador():
             datetime: Fecha y hora actual.
         """
         return datetime.now()
-
-    def buscarEstadoEnCurso(self):
-        """
-        Busca y asigna el estado "EnCurso" al atributo enCurso.
-        """
-        estados = Estado.objects.all()
-
-        for i in estados:
-            if i.esEnCurso(): # Llamada al metodo 4
-                self.enCurso = i
-                return
 
     def obtenerDatosLlamada(self):
         """
@@ -188,23 +178,12 @@ class GestorAdmRtaOperador():
         """
         Finaliza la llamada y registra la acción de finalización.
         """
-        self.buscarEstadoFinalizado() # Llamada al metodo 35
+
         fechaHoraActual = self.getFechaHoraActual() # Llamada al metodo 5
 
-        self.identificada.finalizarLlamada(self.finalizada, fechaHoraActual) # Llamada al metodo 37
+        self.identificada.finalizarLlamada(fechaHoraActual) # Llamada al metodo 37
         self.finCU() # Llamada al metodo 40
 
-    def buscarEstadoFinalizado(self):
-        """
-        Busca y asigna el estado "Finalizada" al atributo finalizada.
-        """
-        estados = Estado.objects.all()
-
-        for i in estados:
-            if i.esFinalizada(): # Llamada al metodo 36
-                self.finalizada = i
-                return 
-            
     def finCU(self):
         """
         Realiza las acciones necesarias al finalizar el caso de uso.
@@ -222,8 +201,11 @@ class GestorAdmRtaOperador():
         Returns:
             HttpResponse: Respuesta HTTP.
         """
-        self.buscarEstadoCancelada()
-        self.identificada.cancelarLlamada(self.cancelada, self.getFechaHoraActual())
+
+        fechaHoraActual = self.getFechaHoraActual()
+        from .cu1 import get_llamada
+        llamada = get_llamada()
+        llamada.cancelarLlamada(fechaHoraActual)
         return self.pantalla.llamadaCancelada(request)
 
     def llamadaEstaCancelada(self, request):
@@ -236,19 +218,7 @@ class GestorAdmRtaOperador():
         Returns:
             bool: Indicador de cancelación de llamada.
         """
-        self.buscarEstadoCancelada()
-        if self.identificada.fuisteCancelada(self.cancelada):
+        if self.identificada.fuisteCancelada():
             return self.pantalla.llamadaCancelada(request)
 
         return False
-
-    def buscarEstadoCancelada(self):
-        """
-        Busca y asigna el estado "Cancelada" al atributo cancelada.
-        """
-        estados = Estado.objects.all()
-
-        for i in estados:
-            if i.esCancelada():
-                self.cancelada = i
-                return
