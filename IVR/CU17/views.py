@@ -32,6 +32,9 @@ class PantallaRtaOperador():
             validaciones = json.loads(request.body)
             return self.gestor.tomarDatosValidacion(validaciones, request) # Llamada al metodo 21
 
+        else:
+            input()
+
     def permitirIngresoRtaOperador(self, request):
         """
         Permite el ingreso de la respuesta del operador en la pantalla.
@@ -108,39 +111,3 @@ class PantallaRtaOperador():
             HttpResponse: Respuesta HTTP.
         """
         return render(request, "home.html", {"motivo":"No existe sub-opción para la opción seleccionada."})
-    
-    def estaCancelada(self, request):
-        """
-        Verifica si la llamada ha sido cancelada.
-
-        Args:
-            request (HttpRequest): Objeto de solicitud HTTP.
-
-        Returns:
-            bool: Indicador de cancelación de llamada.
-        """
-        return self.gestor.llamadaEstaCancelada(request)
-    
-    def llamadaCancelada(self, request):
-        """
-        Muestra un mensaje de que la llamada ha sido cancelada en la pantalla.
-
-        Args:
-            request (HttpRequest): Objeto de solicitud HTTP.
-
-        Returns:
-            HttpResponse: Respuesta HTTP.
-        """
-        return render(request, "home.html", {"motivo":"El Cliente cuelga la llamada."})
-    
-    def cancelarLlamada(self, request):
-        """
-        Cancela la llamada y registra la acción de cancelación.
-
-        Args:
-            request (HttpRequest): Objeto de solicitud HTTP.
-
-        Returns:
-            HttpResponse: Respuesta HTTP.
-        """
-        return self.gestor.cancelarLlamada(request)

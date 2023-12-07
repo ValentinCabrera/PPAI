@@ -36,6 +36,4 @@ urlpatterns = [
     path("tomar/ingreso/datos", pantalla.tomarIngresosDatosValidacion), # Llamada al metodo 20
     path("tomar/ingreso/rta", pantalla.tomarIngresoRta), # Llamada al metodo 27
     path("confirmar", pantalla.tomarConfirmacion),  # Llamada al metodo 30
-    path("cancelar", pantalla.cancelarLlamada),
-    path("es/cancelada", pantalla.estaCancelada),
 ]

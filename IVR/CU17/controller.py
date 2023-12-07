@@ -38,9 +38,6 @@ class GestorAdmRtaOperador():
         if self.seleccionada == None:
             return self.pantalla.ningunaSubopcion(request)
 
-        if self.llamadaEstaCancelada(request):
-            return self.llamadaEstaCancelada(request)
-
         self.recibirLlamada() # Llamada al metodo 2
         self.obtenerDatosLlamada() # Llamada al metodo 8
         self.buscarValidaciones() # Llamada al metodo 14
@@ -69,7 +66,7 @@ class GestorAdmRtaOperador():
         """
         self.cliente, nombre = self.identificada.getNombreClienteLlamada() # Llamada al metodo 9
 
-        descripcion_completa = self.catSeleccionada.getdescripcionCompletaCategoriaYOpcion() # Llamada al metodo 11
+        descripcion_completa = self.catSeleccionada.getdescripcionCompletaCategoriaYOpcion(self.seleccionada) # Llamada al metodo 11
 
         self.datos["categoria"] = self.catSeleccionada.nombre
         self.datos["nombre_completo"] = nombre
@@ -79,7 +76,7 @@ class GestorAdmRtaOperador():
         """
         Busca las validaciones correspondientes a la opción seleccionada y las asigna al atributo datos.
         """
-        self.datos["validaciones"] = self.catSeleccionada.getValidaciones(self.opcionSeleccionada) # Llamada al metodo 15
+        self.datos["validaciones"] = self.catSeleccionada.getValidaciones(self.opcionSeleccionada, self.seleccionada) # Llamada al metodo 15
 
     def tomarDatosValidacion(self, validaciones, request):
         """
@@ -92,8 +89,6 @@ class GestorAdmRtaOperador():
         Returns:
             HttpResponse or bool: Respuesta HTTP o indicador de cancelación de llamada.
         """
-        if self.llamadaEstaCancelada(request):
-            return self.llamadaEstaCancelada(request)
         
         return self.validarInformacionCliente(validaciones, request) # Llamada al metodo 22
 
@@ -108,6 +103,7 @@ class GestorAdmRtaOperador():
         Returns:
             HttpResponse or None: Respuesta HTTP o None.
         """
+
         for pregunta, respuesta in datos_validacion.items():
             if not self.cliente.esInformacionCorrecta([pregunta, respuesta]): break # Llamada al metodo 23
 
@@ -129,8 +125,6 @@ class GestorAdmRtaOperador():
         Returns:
             HttpResponse or bool: Respuesta HTTP o indicador de cancelación de llamada.
         """
-        if self.llamadaEstaCancelada(request):
-            return self.llamadaEstaCancelada(request)
 
         return self.pantalla.solicitarConfirmacion(request, respuesta) # Llamada al metodo 29
 
@@ -145,8 +139,6 @@ class GestorAdmRtaOperador():
         Returns:
             HttpResponse or bool: Respuesta HTTP o indicador de cancelación de llamada.
         """
-        if self.llamadaEstaCancelada(request):
-            return self.llamadaEstaCancelada(request)
 
         if not self.llamarCasoUso18(respuesta): # Llamada al metodo 32
             # Flujo Alternativo 3
@@ -188,37 +180,4 @@ class GestorAdmRtaOperador():
         """
         Realiza las acciones necesarias al finalizar el caso de uso.
         """
-
-    # Flujo Alternativo 1
-
-    def cancelarLlamada(self, request):
-        """
-        Cancela la llamada y registra la acción de cancelación.
-
-        Args:
-            request (HttpRequest): Objeto de solicitud HTTP.
-
-        Returns:
-            HttpResponse: Respuesta HTTP.
-        """
-
-        fechaHoraActual = self.getFechaHoraActual()
-        from .cu1 import get_llamada
-        llamada = get_llamada()
-        llamada.cancelarLlamada(fechaHoraActual)
-        return self.pantalla.llamadaCancelada(request)
-
-    def llamadaEstaCancelada(self, request):
-        """
-        Verifica si la llamada ha sido cancelada.
-
-        Args:
-            request (HttpRequest): Objeto de solicitud HTTP.
-
-        Returns:
-            bool: Indicador de cancelación de llamada.
-        """
-        if self.identificada.fuisteCancelada():
-            return self.pantalla.llamadaCancelada(request)
-
-        return False
+        pass

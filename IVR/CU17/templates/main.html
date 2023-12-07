@@ -117,6 +117,19 @@
       background-color: rgb(22, 172, 32);
       color: white;
     }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .w100 {
+        flex: 1;
+        font-size: 10px;
+        padding-left: 3px;
+    }
   </style>
 </head>
 <body>
@@ -139,8 +152,10 @@
 
     {% for value in datos.validaciones %}
     <div id="validacion{{forloop.counter}}" class="input-container">
-      <p class="f-15">{{value}}</p>
-      <input type="text" class="input" />
+    <div class="content">
+        <p>{{value}}</p>
+        <input class="w100 input" type="text" placeholder="Respuesta"/>
+    </div>
     </div>
     {% endfor %}
 

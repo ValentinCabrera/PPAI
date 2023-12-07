@@ -32,8 +32,32 @@ class IAgregado():
     def crearIterador(self):
         pass
 
+class OpcionLlamada(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    def getDescripcionConSubOpcion(self, subOpcion):
+        """
+        Obtiene la descripción de la opción de llamada junto con la subopción seleccionada.
+
+        Returns:
+            descripcion (dict): Diccionario con la opción y la subopción seleccionada.
+        """
+        sub_opcion = subOpcion.getNombre()
+
+        return {"opcion": self.nombre, "sub_opcion": sub_opcion}
+
+    def getValidaciones(self, subOpcionSeleccionada):
+        """
+        Obtiene las validaciones asociadas a la opción de llamada.
+
+        Returns:
+            mensajes (list): Lista de mensajes de validación.
+        """
+        return subOpcionSeleccionada.getValidaciones()
+
 class SubOpcionLlamada(models.Model, IAgregado):
     nombre = models.CharField(max_length=30)
+    opcion = models.ForeignKey(OpcionLlamada, on_delete=models.RESTRICT)
 
     def getValidaciones(self):
         iterador = self.crearIterador(self.validaciones.all())
@@ -41,7 +65,7 @@ class SubOpcionLlamada(models.Model, IAgregado):
 
         mensajes = []
 
-        if iterador.haTerminado() == False:
+        while not iterador.haTerminado():
             actual = iterador.actual()
             mensajes.append(actual.getMensajeValidacion())
             iterador.siguiente()
@@ -61,44 +85,20 @@ class SubOpcionLlamada(models.Model, IAgregado):
         """
         return self.nombre
 
-class OpcionLlamada(models.Model):
-    nombre = models.CharField(max_length=30)
-    seleccionada = models.ForeignKey(SubOpcionLlamada, on_delete=models.RESTRICT)
-
-    def getDescripcionConSubOpcion(self):
-        """
-        Obtiene la descripción de la opción de llamada junto con la subopción seleccionada.
-
-        Returns:
-            descripcion (dict): Diccionario con la opción y la subopción seleccionada.
-        """
-        sub_opcion = self.seleccionada.getNombre()
-
-        return {"opcion": self.nombre, "sub_opcion": sub_opcion}
-
-    def getValidaciones(self):
-        """
-        Obtiene las validaciones asociadas a la opción de llamada.
-
-        Returns:
-            mensajes (list): Lista de mensajes de validación.
-        """
-        return self.seleccionada.getValidaciones()
-
 class CategoriaLlamada(models.Model):
     nombre = models.CharField(max_length=30, primary_key=True)
     opcionSeleccionada = models.ForeignKey(OpcionLlamada, on_delete=models.RESTRICT)
 
-    def getdescripcionCompletaCategoriaYOpcion(self):
+    def getdescripcionCompletaCategoriaYOpcion(self, subOpcion):
         """
         Obtiene la descripción completa de la categoría de llamada y la opción seleccionada.
 
         Returns:
             descripcion (dict): Diccionario con la categoría y la opción seleccionada.
         """
-        return self.opcionSeleccionada.getDescripcionConSubOpcion()
+        return self.opcionSeleccionada.getDescripcionConSubOpcion(subOpcion)
 
-    def getValidaciones(self, opcionSeleccionada):
+    def getValidaciones(self, opcionSeleccionada, subOpcionSeleccionada):
         """
         Obtiene las validaciones asociadas a la opción seleccionada de la categoría de llamada.
 
@@ -108,7 +108,7 @@ class CategoriaLlamada(models.Model):
         Returns:
             mensajes (list): Lista de mensajes de validación.
         """
-        return opcionSeleccionada.getValidaciones()
+        return opcionSeleccionada.getValidaciones(subOpcionSeleccionada)
 
 class Validacion(models.Model):
     sub_opcion = models.ForeignKey(SubOpcionLlamada, on_delete=models.RESTRICT, related_name="validaciones")
@@ -187,42 +187,37 @@ class InformacionCliente(models.Model):
 
 
 class Estado(models.Model):
-    def derivarAOperador(self, fechaHoraActual):
+    def derivarAOperador(self, fechaHoraActual, llamada):
         pass
 
-    def finalizarLlamada(self, fechaHoraActual):
+    def finalizarLlamada(self, fechaHoraActual, llamada, fechaHoraInicio):
         pass
-
-    def cancelarLlamada(self, fechaHoraActual):
-        pass
-
-    def crearEstadoCancelada(self):
-        pass
-
-    def esCancelada(self):
-        pass
-
 
 class EnCurso(Estado):
     class Meta:
         proxy = True
-    def finalizarLlamada(self, fechaHoraActual):
+    def finalizarLlamada(self, fechaHoraActual, llamada, fechaHoraInicio):
         finalizada = self.crearProximoEstado()
         cambio = self.crearCambioEstado(fechaHoraActual, finalizada)
 
-        self.llamada.first().agregarCambioEstado(cambio)
-        self.llamada.first().setEstado(finalizada)
+        llamada.agregarCambioEstado(cambio)
+        llamada.setEstado(finalizada)
 
-    def cancelarLlamada(self, fechaHoraActual):
-        cancelada = self.crearEstadoCancelada()
-        cambio = self.crearCambioEstado(fechaHoraActual, cancelada)
+        duracion = self.calcularDuracion(fechaHoraInicio, fechaHoraActual)
+        llamada.setDuracion(duracion)
 
-        self.llamada.first().agregarCambioEstado(cambio)
-        self.llamada.first().setEstado(cancelada)
+    def calcularDuracion(self, fechaHoraInicio, fechaHoraActual):
+        """
+        Calcula la duración de la llamada.
 
-    def crearEstadoCancelada(self):
-        cancelada = Cancelada.objects.create()
-        return cancelada
+        Args:
+            fin (datetime): Fecha y hora de finalización de la llamada.
+        """
+        diferencia = fechaHoraActual - fechaHoraInicio
+        tiempo = diferencia.total_seconds() / 60
+        duracion = round(tiempo, 1)
+
+        return duracion
 
     def crearProximoEstado(self):
         finalizada = Finalizada.objects.create()
@@ -235,8 +230,6 @@ class EnCurso(Estado):
 class Cancelada(Estado):
     class Meta:
         proxy = True
-    def esCancelada(self):
-        return True
 
 class Finalizada(Estado):
     class Meta:
@@ -245,23 +238,12 @@ class Finalizada(Estado):
 class Iniciada(Estado):
     class Meta:
         proxy = True
-    def derivarAOperador(self, fechaHoraActual):
+    def derivarAOperador(self, fechaHoraActual, llamada):
         enCurso = self.crearProximoEstado()
         cambio = self.crearCambioEstado(fechaHoraActual, enCurso)
 
-        self.llamada.first().agregarCambioEstado(cambio)
-        self.llamada.first().setEstado(enCurso)
-
-    def cancelarLlamada(self, fechaHoraActual):
-        cancelada = self.crearEstadoCancelada()
-        cambio = self.crearCambioEstado(fechaHoraActual, cancelada)
-
-        self.llamada.first().agregarCambioEstado(cambio)
-        self.llamada.first().setEstado(cancelada)
-
-    def crearEstadoCancelada(self):
-        cancelada = Cancelada.objects.create()
-        return cancelada
+        llamada.agregarCambioEstado(cambio)
+        llamada.setEstado(enCurso)
 
     def crearProximoEstado(self):
         enCurso = EnCurso.objects.create()
@@ -281,7 +263,7 @@ class Llamada(models.Model):
     estadoActual = models.ForeignKey(Estado, on_delete=models.RESTRICT, related_name="llamada" ,related_query_name="estado")
 
     def derivarAOperador(self, fecha_hora):
-        self.estadoActual.derivarAOperador(fecha_hora)
+        self.estadoActual.derivarAOperador(fecha_hora, self)
 
     def getNombreClienteLlamada(self):
         """
@@ -294,35 +276,7 @@ class Llamada(models.Model):
         return clienteDeLlamada, clienteDeLlamada.getNombre()
 
     def finalizarLlamada(self, fechaHoraActual):
-        self.estadoActual.finalizarLlamada(fechaHoraActual)
-        self.calcularDuracion(fechaHoraActual)
-
-    def calcularDuracion(self, fin):
-        """
-        Calcula la duración de la llamada.
-
-        Args:
-            fin (datetime): Fecha y hora de finalización de la llamada.
-        """
-        diferencia = fin - self.fechaHoraInicio
-        tiempo = diferencia.total_seconds() / 60
-        self.duracion = round(tiempo, 1)
-        self.save()
-
-    def cancelarLlamada(self, fecha_hora):
-        self.estadoActual.cancelarLlamada(fecha_hora)
-
-    def fuisteCancelada(self):
-        """
-        Verifica si la llamada fue cancelada.
-
-        Args:
-            estado (Estado): Estado de la llamada.
-
-        Returns:
-            fue_cancelada (bool): Indica si la llamada fue cancelada o no.
-        """
-        return self.estadoActual.esCancelada()
+        self.estadoActual.finalizarLlamada(fechaHoraActual, self, self.fechaHoraInicio)
 
     def agregarCambioEstado(self, cambio):
         cambio.llamada = self
@@ -330,6 +284,10 @@ class Llamada(models.Model):
 
     def setEstado(self, estado):
         self.estadoActual = estado
+        self.save()
+
+    def setDuracion(self, duracion):
+        self.duracion = duracion
         self.save()
 
 class CambioEstado(models.Model):

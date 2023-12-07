@@ -38,10 +38,9 @@ def get_categoria():
 
 def get_opcion():
     opcion = OpcionLlamada.objects.last()
-    subOpcion = get_subOpcion()
 
     if not opcion:
-        opcion = OpcionLlamada.objects.create(nombre="Opcion 1", seleccionada=subOpcion)
+        opcion = OpcionLlamada.objects.create(nombre="Opcion 1")
 
     return opcion
 
@@ -50,6 +49,6 @@ def get_subOpcion():
     subOpcion = SubOpcionLlamada.objects.last()
 
     if not subOpcion:
-        subOpcion = SubOpcionLlamada.objects.create(nombre="Sub Opcion 1")
+        subOpcion = SubOpcionLlamada.objects.create(nombre="Sub Opcion 1", opcion=get_opcion())
 
     return subOpcion
