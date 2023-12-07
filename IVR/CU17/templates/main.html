@@ -1,157 +1,152 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Página principal</title>
-    <script>
-      function postData() {
-        var data = {};
+<head>
+  <title>Página principal</title>
+  <script>
+    function postData() {
+      var data = {};
+      var validacionElements = document.querySelectorAll('[id^="validacion"]');
 
-        var validacionElements =
-          document.querySelectorAll('[id^="validacion"]');
-
-        validacionElements.forEach(function (element) {
-          var respuesta = element.querySelector("input").value;
-          var pregunta = element.querySelector("p").textContent;
-          data[pregunta] = respuesta;
-        });
-
-        fetch("http://localhost:8000/tomar/ingreso/datos", {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              validacionElements.forEach(function (element) {
-                element.querySelector("input").value = "";
-              });
-              throw new Error("Validacion incorrecta");
-            }
-            return response.text();
-          })
-          .then((html) => {
-            const newDocument = document.implementation.createHTMLDocument();
-            newDocument.documentElement.innerHTML = html;
-
-            document.open();
-            document.write(newDocument.documentElement.innerHTML);
-            document.close();
-          });
-      }
-
-      document.addEventListener("keydown", function (event) {
-        if (event.keyCode === 13) {
-          postData();
-        }
+      validacionElements.forEach(function (element) {
+        var respuesta = element.querySelector("input").value;
+        var pregunta = element.querySelector("p").textContent;
+        data[pregunta] = respuesta;
       });
-    </script>
-    <style>
-      .fx-col {
-        display: flex;
-        flex-direction: column;
-      }
 
-      .fx-row {
-        display: flex;
-        flex-direction: row;
-      }
+      fetch("http://localhost:8000/tomar/ingreso/datos", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+      })
+      .then((response) => {
+        if (!response.ok) {
+          validacionElements.forEach(function (element) {
+            element.querySelector("input").value = "";
+          });
+          throw new Error("Validación incorrecta");
+        }
+        return response.text();
+      })
+      .then((html) => {
+        const newDocument = document.implementation.createHTMLDocument();
+        newDocument.documentElement.innerHTML = html;
 
-      .fx-sep {
-        justify-content: space-between;
-      }
+        document.open();
+        document.write(newDocument.documentElement.innerHTML);
+        document.close();
+      });
+    }
 
-      .fx-center {
-        align-items: center;
+    document.addEventListener("keydown", function (event) {
+      if (event.keyCode === 13) {
+        postData();
       }
+    });
+  </script>
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      background-color: #082338;
+    }
 
-      .w300 {
-        width: 300px;
-      }
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+      margin-top: 30px;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
+      background-color: lightgray;
+      box-shadow: 0 10px 15px;
+    }
 
-      .b-fondo {
-        background-color: rgb(28, 66, 100);
-      }
+    .form-container .info-container {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
 
-      .m30 {
-        margin-top: 30px;
-      }
+    .form-container .info-container p {
+      font-size: 19px;
+      margin: 0;
+    }
 
-      .p30 {
-        padding: 30px;
-      }
+    .form-container .info-container .border {
+      border: 0.5px solid #082338;
+      padding: 0 10px;
+    }
 
-      .w100p {
-        width: 100%;
-      }
+    .form-container .input-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
 
-      .b-frente {
-        background-color: rgb(220, 83, 55);
-      }
+    .form-container .input-container .f-15 {
+      font-size: 10px;
+    }
 
-      .button {
-        border: none;
-        background-color: rgb(240, 140, 120);
-        font-size: 15px;
-      }
+    .form-container .input-container input {
+      width: 100%;
+      font-size: 15px;
+    }
 
-      .button:hover {
-        background-color: rgb(180, 80, 60);
-        color: white;
-      }
+    .form-container .button-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+    }
 
-      .input {
-        padding-top: 5px;
-        padding-bottom: 5px;
-        padding-left: 5px;
-        font-size: 15px;
-      }
+    .form-container .button-container button {
+      border: none;
+      background-color: #082338;
+      color: white;
+      font-size: 20px;
+      padding: 10px 10px;
+      border-radius: 10px;
+    }
 
-      div p {
-        font-size: 19px;
-      }
-
-      .border {
-        border: 0.5px solid #8b0000;
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-
-      .border-r {
-        border-radius: 10px;
-        box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
-      }
-    </style>
-  </head>
-  <body class="fx-col fx-center b-fondo">
-    <div class="fx-col w300 b-frente m30 p30 border-r">
-      <div class="border">
-        <div class="fx-row fx-sep">
-          <p>Nombre:</p>
-          <p>{{datos.nombre_completo}}</p>
-        </div>
-        <div class="fx-row fx-sep">
-          <p>Categoria:</p>
-          <p>{{datos.categoria}}</p>
-        </div>
+    .form-container .button-container button:hover {
+      background-color: rgb(22, 172, 32);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="info-container border">
+      <div class="input-container">
+        <p>Nombre:</p>
+        <p>{{datos.nombre_completo}}</p>
       </div>
-
-      <div class="fx-row fx-sep">
-        <p>{{datos.descripcion_completa.opcion}}</p>
-        <p>{{datos.descripcion_completa.sub_opcion}}</p>
+      <div class="input-container">
+        <p>Categoría:</p>
+        <p>{{datos.categoria}}</p>
       </div>
-
-      {% for value in datos.validaciones %}
-      <div id="validacion{{forloop.counter}}">
-        <p class="f-15">{{value}}</p>
-        <input type="text" class="w100p input" />
-      </div>
-      {% endfor %}
-
-      <button onClick="postData()" class="m30 button border-r">
-        Siguiente
-      </button>
     </div>
-  </body>
+
+    <div class="input-container">
+      <p>{{datos.descripcion_completa.opcion}}</p>
+      <p>{{datos.descripcion_completa.sub_opcion}}</p>
+    </div>
+
+    {% for value in datos.validaciones %}
+    <div id="validacion{{forloop.counter}}" class="input-container">
+      <p class="f-15">{{value}}</p>
+      <input type="text" class="input" />
+    </div>
+    {% endfor %}
+
+    <div class="button-container">
+      <button onClick="postData()">Siguiente</button>
+    </div>
+  </div>
+</body>
 </html>
