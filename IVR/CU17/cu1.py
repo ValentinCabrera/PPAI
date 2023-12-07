@@ -7,6 +7,11 @@ from CU17.models import (
     Iniciada)
 
 def get_cliente():
+    """Retorna el ultimo cliente
+
+    Returns:
+        Objeto de tipo Cliente
+    """
     cliente = Cliente.objects.last()
 
     if not cliente:
@@ -14,6 +19,13 @@ def get_cliente():
 
     return cliente
 def get_llamada():
+    """Busca la ultima llamada y el estado iniciada. 
+    Si la llamada no existe la crea.
+    En caso de que exista le asigna el estado.
+
+    Returns:
+        Objeto del tipo Llamada
+    """
     llamada = Llamada.objects.last()
     iniciada = Iniciada.objects.create()
 
@@ -27,6 +39,11 @@ def get_llamada():
 
     return llamada
 def get_categoria():
+    """
+    Obtiene la categoria
+    Returns:
+        Objeto de tipo CategoriaLlamada
+    """
     categoria = CategoriaLlamada.objects.last()
     opcion = get_opcion()
 
@@ -37,6 +54,11 @@ def get_categoria():
 
 
 def get_opcion():
+    """_
+    Obtiene la ultima opcion
+    Returns:
+        Objeto de tipo OpcionLlamada
+    """
     opcion = OpcionLlamada.objects.last()
     subOpcion = get_subOpcion()
 
@@ -47,6 +69,11 @@ def get_opcion():
 
 
 def get_subOpcion():
+    """
+    Obtiene la ultima subOpcion
+    Returns:
+        Objeto de tipo SubOpcionLlamada
+    """
     subOpcion = SubOpcionLlamada.objects.last()
 
     if not subOpcion:

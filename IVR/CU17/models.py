@@ -1,6 +1,11 @@
 from django.db import models
 
+
+
 class Iterador():
+    """
+    Clase abstracta del iterador, la misma contiene los metodos vacios del metodo iterador, los cuales seran implementados por los iteradores concretos.
+    """
     def primero(self):
         pass
 
@@ -13,22 +18,49 @@ class Iterador():
     def siguiente(self):
         pass
 class IteradorValidacion(Iterador):
+    """
+        Clase IteradorValidacion, es una concrecion de la clase Iterador.
+    """
     i = 0
 
     def __init__(self, elementos):
+        """Constructor
+
+        Args:
+            elementos
+        """
         self.elementos = elementos
     def primero(self):
+        """
+        Inicia el indicce en 0
+        """
         self.i = 0
 
     def haTerminado(self):
+        """
+        Verifica si el iterador a terminado de recorrer todos los objetos
+        Returns:
+            Bool
+        """
         return self.i == len(self.elementos)
 
     def actual(self):
+        """
+        Retorna el elemento actual que esta iterando
+        Returns:
+            elemento[i]
+        """
         return self.elementos[self.i]
 
     def siguiente(self):
+        """
+        Aumenta el indice en 1
+        """
         self.i += 1
 class IAgregado():
+    """
+    Interfaz con el metodo necesario para crear un iterador, el mismo esta vacio
+    """
     def crearIterador(self):
         pass
 
@@ -36,6 +68,11 @@ class SubOpcionLlamada(models.Model, IAgregado):
     nombre = models.CharField(max_length=30)
 
     def getValidaciones(self):
+        """
+        Obtiene las validaciones y utiliza un iterador para recorrerlas, guardando los mensajes en un array
+        Returns:
+            Lista de mensajes
+        """
         iterador = self.crearIterador(self.validaciones.all())
         iterador.primero()
 
@@ -49,6 +86,14 @@ class SubOpcionLlamada(models.Model, IAgregado):
         return mensajes
 
     def crearIterador(self, elementos):
+        """
+        Implementacion de la clase IAgregado
+        Args:
+            elementos
+
+        Returns:
+            iterador
+        """
         iterador = IteradorValidacion(elementos)
         return iterador
 
@@ -187,7 +232,14 @@ class InformacionCliente(models.Model):
 
 
 class Estado(models.Model):
+<<<<<<< Updated upstream
     def derivarAOperador(self, fechaHoraActual):
+=======
+    """
+    Clase utilizada para la aplicacion del patron state
+    """
+    def derivarAOperador(self, fechaHoraActual, llamada):
+>>>>>>> Stashed changes
         pass
 
     def finalizarLlamada(self, fechaHoraActual):
@@ -204,6 +256,13 @@ class Estado(models.Model):
 
 
 class EnCurso(Estado):
+    """
+    Concrecion de estado
+
+    Args:
+        Estado
+
+    """
     class Meta:
         proxy = True
     def finalizarLlamada(self, fechaHoraActual):
@@ -233,19 +292,47 @@ class EnCurso(Estado):
         return cambio
 
 class Cancelada(Estado):
+    """
+    Concrecion de estado
+
+    Args:
+        Estado
+
+    """
     class Meta:
         proxy = True
     def esCancelada(self):
         return True
 
 class Finalizada(Estado):
+    """
+    Concrecion de estado
+
+    Args:
+        Estado
+
+    """
     class Meta:
         proxy = True
 
 class Iniciada(Estado):
+    """
+    Concrecion de estado
+
+    Args:
+        Estado
+
+    """
     class Meta:
         proxy = True
+<<<<<<< Updated upstream
     def derivarAOperador(self, fechaHoraActual):
+=======
+    def derivarAOperador(self, fechaHoraActual, llamada):
+        """
+        Metodo 5
+        """
+>>>>>>> Stashed changes
         enCurso = self.crearProximoEstado()
         cambio = self.crearCambioEstado(fechaHoraActual, enCurso)
 
@@ -264,11 +351,23 @@ class Iniciada(Estado):
         return cancelada
 
     def crearProximoEstado(self):
-        enCurso = EnCurso.objects.create()
+        """
+        Metodo 6
+
+        Returns:
+            estado EnCurso
+        """
+        enCurso = EnCurso.objects.create() #Metodo 7
         return enCurso
 
     def crearCambioEstado(self, fechaHoraActual, estado):
-        cambio = CambioEstado.objects.create(estado=estado, fechaHoraInicio=fechaHoraActual)
+        """
+        Metodo 8
+
+        Returns:
+            Cambio de Estado
+        """
+        cambio = CambioEstado.objects.create(estado=estado, fechaHoraInicio=fechaHoraActual)#Metodo 9
         return cambio
 
     def __str__(self):
@@ -285,6 +384,7 @@ class Llamada(models.Model):
 
     def getNombreClienteLlamada(self):
         """
+        Metodo 13
         Obtiene el nombre del cliente asociado a la llamada.
 
         Returns:
@@ -325,10 +425,16 @@ class Llamada(models.Model):
         return self.estadoActual.esCancelada()
 
     def agregarCambioEstado(self, cambio):
+        """
+        Metodo 10
+        """
         cambio.llamada = self
         cambio.save()
 
     def setEstado(self, estado):
+        """
+        Metodo 11
+        """
         self.estadoActual = estado
         self.save()
 
