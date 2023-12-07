@@ -1,37 +1,56 @@
 from django.db import models
 
-class Iterador():
+class Iterador(): # Interfaz
+    """Patron iterador"""
     def primero(self):
         pass
-
     def haTerminado(self):
         pass
-
     def actual(self):
         pass
-
     def siguiente(self):
         pass
 class IteradorValidacion(Iterador):
+    """Iterador concreto"""
     i = 0
 
     def __init__(self, elementos):
+        """
+        Constructor
+        Args: Object[]
+        """
         self.elementos = elementos
     def primero(self):
+        """
+        Setea el index a 0
+        """
         self.i = 0
 
     def haTerminado(self):
+        """
+        Verifica si se finalizo el iterador
+        Return: Boolean
+        """
         return self.i == len(self.elementos)
 
     def actual(self):
+        """
+        Devuelve el elemento actual
+        Return: Object
+        """
         return self.elementos[self.i]
 
     def siguiente(self):
+        """
+        Incrementa el index
+        """
         self.i += 1
 class IAgregado():
+    """
+    Interfaz pora crear iterador
+    """
     def crearIterador(self):
         pass
-
 class OpcionLlamada(models.Model):
     nombre = models.CharField(max_length=30)
 
@@ -54,12 +73,16 @@ class OpcionLlamada(models.Model):
             mensajes (list): Lista de mensajes de validación.
         """
         return subOpcionSeleccionada.getValidaciones()
-
 class SubOpcionLlamada(models.Model, IAgregado):
     nombre = models.CharField(max_length=30)
     opcion = models.ForeignKey(OpcionLlamada, on_delete=models.RESTRICT)
 
     def getValidaciones(self):
+        """
+        Crea el iterador, lo recorre y retorna los mensajes de validacion
+        Return:
+            Array[String]: mensajes
+        """
         iterador = self.crearIterador(self.validaciones.all())
         iterador.primero()
 
@@ -73,6 +96,12 @@ class SubOpcionLlamada(models.Model, IAgregado):
         return mensajes
 
     def crearIterador(self, elementos):
+        """
+        Crea el iterador
+        Args:
+            elementos: Objects[]
+        Return: Iterador()
+        """
         iterador = IteradorValidacion(elementos)
         return iterador
 
@@ -84,7 +113,6 @@ class SubOpcionLlamada(models.Model, IAgregado):
             nombre (str): Nombre de la subopción de llamada.
         """
         return self.nombre
-
 class CategoriaLlamada(models.Model):
     nombre = models.CharField(max_length=30, primary_key=True)
     opcionSeleccionada = models.ForeignKey(OpcionLlamada, on_delete=models.RESTRICT)
@@ -109,7 +137,6 @@ class CategoriaLlamada(models.Model):
             mensajes (list): Lista de mensajes de validación.
         """
         return opcionSeleccionada.getValidaciones(subOpcionSeleccionada)
-
 class Validacion(models.Model):
     sub_opcion = models.ForeignKey(SubOpcionLlamada, on_delete=models.RESTRICT, related_name="validaciones")
     nombre = models.CharField(max_length=150)
@@ -122,7 +149,6 @@ class Validacion(models.Model):
             nombre (str): Mensaje de validación.
         """
         return self.nombre
-
 class Cliente(models.Model):
     nombre_completo = models.CharField(max_length=30)
     
@@ -155,7 +181,6 @@ class Cliente(models.Model):
                 return True
             
         return False
-        
 class InformacionCliente(models.Model):
     validacion = models.ForeignKey(Validacion, on_delete=models.RESTRICT)
     datoAValidar = models.CharField(max_length=30)
@@ -184,19 +209,28 @@ class InformacionCliente(models.Model):
             es_correcta (bool): Indica si la información coincide o no.
         """
         return self.datoAValidar == informacion
-
-
 class Estado(models.Model):
+    """
+    Patron state
+    Clase abstracta
+    """
     def derivarAOperador(self, fechaHoraActual, llamada):
         pass
 
     def finalizarLlamada(self, fechaHoraActual, llamada, fechaHoraInicio):
         pass
-
 class EnCurso(Estado):
     class Meta:
         proxy = True
+
     def finalizarLlamada(self, fechaHoraActual, llamada, fechaHoraInicio):
+        """
+        Finaliza la llamada creando el proximo cambio de estado, seteando el estado y calculando la duracion
+        Args:
+            fechaHoraActual: DataTime
+            llamada: Llamada()
+            fechaHoraInicio: DataTime
+        """
         finalizada = self.crearProximoEstado()
         cambio = self.crearCambioEstado(fechaHoraActual, finalizada)
 
@@ -211,7 +245,11 @@ class EnCurso(Estado):
         Calcula la duración de la llamada.
 
         Args:
-            fin (datetime): Fecha y hora de finalización de la llamada.
+            fechaHoraInicio: DataTime
+            fechaHoraActual: DataTime
+
+        Return:
+            duracion: Boolen
         """
         diferencia = fechaHoraActual - fechaHoraInicio
         tiempo = diferencia.total_seconds() / 60
@@ -220,25 +258,55 @@ class EnCurso(Estado):
         return duracion
 
     def crearProximoEstado(self):
+        """
+        Crea el proximo estado
+        Return:
+            finalizada: Finalizada()
+        """
+
         finalizada = Finalizada.objects.create()
         return finalizada
 
     def crearCambioEstado(self, fechaHoraActual, estado):
+        """
+        Crea un cambio de estado
+        Args:
+            fechaHoraActual: DataTime
+            estado: Estado()
+
+        Return:
+            cambio: CambioEstado()
+        """
         cambio = CambioEstado.objects.create(estado=estado, fechaHoraInicio=fechaHoraActual)
         return cambio
-
 class Cancelada(Estado):
     class Meta:
         proxy = True
-
 class Finalizada(Estado):
     class Meta:
         proxy = True
-
+class Correcta(Estado):
+    class Meta:
+        proxy = True
+class Descartada(Estado):
+    class Meta:
+        proxy = True
+class ConObservacion(Estado):
+    class Meta:
+        proxy = True
+class AAuditar(Estado):
+    class Meta:
+        proxy = True
 class Iniciada(Estado):
     class Meta:
         proxy = True
     def derivarAOperador(self, fechaHoraActual, llamada):
+        """
+        Deriva la llamda al operador, crea el cambio de estado y lo setea junto a su estado
+        Args:
+            fechaHoraActual: DataTime
+            llamada: Llamada()
+        """
         enCurso = self.crearProximoEstado()
         cambio = self.crearCambioEstado(fechaHoraActual, enCurso)
 
@@ -246,16 +314,27 @@ class Iniciada(Estado):
         llamada.setEstado(enCurso)
 
     def crearProximoEstado(self):
+        """
+        Crea el proximo estado
+           Return:
+               enCursi: EnCurso()
+        """
+
         enCurso = EnCurso.objects.create()
         return enCurso
 
     def crearCambioEstado(self, fechaHoraActual, estado):
+        """
+        Crea un cambio de estado
+        Args:
+            fechaHoraActual: DataTime
+            estado: Estado()
+
+        Return:
+            cambio: CambioEstado()
+        """
         cambio = CambioEstado.objects.create(estado=estado, fechaHoraInicio=fechaHoraActual)
         return cambio
-
-    def __str__(self):
-        return "Iniciada"
-
 class Llamada(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.RESTRICT)
     fechaHoraInicio = models.DateTimeField(auto_now=True)
@@ -263,6 +342,11 @@ class Llamada(models.Model):
     estadoActual = models.ForeignKey(Estado, on_delete=models.RESTRICT, related_name="llamada" ,related_query_name="estado")
 
     def derivarAOperador(self, fecha_hora):
+        """
+        Delega el cambio de estado al estado actual
+        Args:
+            fecha_hora: DataTime
+        """
         self.estadoActual.derivarAOperador(fecha_hora, self)
 
     def getNombreClienteLlamada(self):
@@ -276,20 +360,39 @@ class Llamada(models.Model):
         return clienteDeLlamada, clienteDeLlamada.getNombre()
 
     def finalizarLlamada(self, fechaHoraActual):
+        """
+        Delega el comportamiento de finalizar llamada al estado actual
+        Args:
+            fechaHoraActual: DataTime
+        """
         self.estadoActual.finalizarLlamada(fechaHoraActual, self, self.fechaHoraInicio)
 
     def agregarCambioEstado(self, cambio):
+        """
+        Agrega el cambio de estado a la llamada
+        Args:
+            cambio: CambioEstado
+        """
         cambio.llamada = self
         cambio.save()
 
     def setEstado(self, estado):
+        """
+        Setea el estado
+        Args:
+            estado: Estado
+        """
         self.estadoActual = estado
         self.save()
 
     def setDuracion(self, duracion):
+        """
+        Setea la duracion
+        Args:
+            duracion: Double
+        """
         self.duracion = duracion
         self.save()
-
 class CambioEstado(models.Model):
     llamada = models.ForeignKey(Llamada, on_delete=models.CASCADE, related_name="cambios_estado", null=True)
     estado = models.ForeignKey(Estado, on_delete=models.RESTRICT)

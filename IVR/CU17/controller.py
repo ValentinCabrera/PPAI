@@ -11,12 +11,6 @@ class GestorAdmRtaOperador():
     def __init__(self):
         """
         Inicializa el Gestor de Administración de Respuestas del Operador.
-
-        Args:
-            llamada (Llamada): Llamada asociada.
-            categoria (CategoriaLlamada): Categoría seleccionada.
-            opcion (str): Opción seleccionada.
-            sub_opcion (str): Subopción seleccionada.
         """
         self.pantalla = PantallaRtaOperador(self)
 
@@ -25,6 +19,10 @@ class GestorAdmRtaOperador():
         Procesa una nueva respuesta del operador.
 
         Args:
+            llamada (Llamada): Llamada asociada.
+            categoria (CategoriaLlamada): Categoría seleccionada.
+            opcion (str): Opción seleccionada.
+            sub_opcion (str): Subopción seleccionada.
             request (HttpRequest): Objeto de solicitud HTTP.
 
         Returns:
@@ -38,18 +36,18 @@ class GestorAdmRtaOperador():
         if self.seleccionada == None:
             return self.pantalla.ningunaSubopcion(request)
 
-        self.recibirLlamada() # Llamada al metodo 2
-        self.obtenerDatosLlamada() # Llamada al metodo 8
-        self.buscarValidaciones() # Llamada al metodo 14
-        return self.pantalla.mostrarDatosLlamadaYValidacionRequerida(request, self.datos) # Llamada al metodo 19
+        self.recibirLlamada()
+        self.obtenerDatosLlamada()
+        self.buscarValidaciones()
+        return self.pantalla.mostrarDatosLlamadaYValidacionRequerida(request, self.datos)
 
     def recibirLlamada(self):
         """
         Registra la recepción de la llamada.
         """
 
-        fechaHoraActual = self.getFechaHoraActual() # Llamada al metodo 5
-        self.identificada.derivarAOperador(fechaHoraActual) # Llamada al metodo 6
+        fechaHoraActual = self.getFechaHoraActual()
+        self.identificada.derivarAOperador(fechaHoraActual)
 
     def getFechaHoraActual(self):
         """
@@ -64,9 +62,9 @@ class GestorAdmRtaOperador():
         """
         Obtiene los datos de la llamada y los asigna al atributo datos.
         """
-        self.cliente, nombre = self.identificada.getNombreClienteLlamada() # Llamada al metodo 9
+        self.cliente, nombre = self.identificada.getNombreClienteLlamada()
 
-        descripcion_completa = self.catSeleccionada.getdescripcionCompletaCategoriaYOpcion(self.seleccionada) # Llamada al metodo 11
+        descripcion_completa = self.catSeleccionada.getdescripcionCompletaCategoriaYOpcion(self.seleccionada)
 
         self.datos["categoria"] = self.catSeleccionada.nombre
         self.datos["nombre_completo"] = nombre
@@ -76,7 +74,7 @@ class GestorAdmRtaOperador():
         """
         Busca las validaciones correspondientes a la opción seleccionada y las asigna al atributo datos.
         """
-        self.datos["validaciones"] = self.catSeleccionada.getValidaciones(self.opcionSeleccionada, self.seleccionada) # Llamada al metodo 15
+        self.datos["validaciones"] = self.catSeleccionada.getValidaciones(self.opcionSeleccionada, self.seleccionada)
 
     def tomarDatosValidacion(self, validaciones, request):
         """
@@ -90,7 +88,7 @@ class GestorAdmRtaOperador():
             HttpResponse or bool: Respuesta HTTP o indicador de cancelación de llamada.
         """
         
-        return self.validarInformacionCliente(validaciones, request) # Llamada al metodo 22
+        return self.validarInformacionCliente(validaciones, request)
 
     def validarInformacionCliente(self, datos_validacion, request):
         """
@@ -105,10 +103,10 @@ class GestorAdmRtaOperador():
         """
 
         for pregunta, respuesta in datos_validacion.items():
-            if not self.cliente.esInformacionCorrecta([pregunta, respuesta]): break # Llamada al metodo 23
+            if not self.cliente.esInformacionCorrecta([pregunta, respuesta]): break
 
         else:
-            return self.pantalla.permitirIngresoRtaOperador(request) # Llamada al metodo 26
+            return self.pantalla.permitirIngresoRtaOperador(request)
         
         # Flujo Alternativo 2
         from django.http import HttpResponse
@@ -126,7 +124,7 @@ class GestorAdmRtaOperador():
             HttpResponse or bool: Respuesta HTTP o indicador de cancelación de llamada.
         """
 
-        return self.pantalla.solicitarConfirmacion(request, respuesta) # Llamada al metodo 29
+        return self.pantalla.solicitarConfirmacion(request, respuesta)
 
     def confirmar(self, request, respuesta):
         """
@@ -140,18 +138,18 @@ class GestorAdmRtaOperador():
             HttpResponse or bool: Respuesta HTTP o indicador de cancelación de llamada.
         """
 
-        if not self.llamarCasoUso18(respuesta): # Llamada al metodo 32
+        if not self.llamarCasoUso18(respuesta):
             # Flujo Alternativo 3
             return self.pantalla.permitirIngresoRtaOperador(request)
 
         try:
-            return self.pantalla.informarAccionRegistrada(request) # Llamada al metodo 33
+            return self.pantalla.informarAccionRegistrada(request)
         
         except:
             pass
 
         finally:
-            self.finalizarLlamada() # Llamada al metodo 34
+            self.finalizarLlamada()
 
     def llamarCasoUso18(self, respuesta):
         """
@@ -171,10 +169,10 @@ class GestorAdmRtaOperador():
         Finaliza la llamada y registra la acción de finalización.
         """
 
-        fechaHoraActual = self.getFechaHoraActual() # Llamada al metodo 5
+        fechaHoraActual = self.getFechaHoraActual()
 
-        self.identificada.finalizarLlamada(fechaHoraActual) # Llamada al metodo 37
-        self.finCU() # Llamada al metodo 40
+        self.identificada.finalizarLlamada(fechaHoraActual)
+        self.finCU()
 
     def finCU(self):
         """
